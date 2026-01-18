@@ -1,651 +1,502 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Happy Birthday Shashwat! 🎉</title>
+    <title>Shashwat's Character Arc 📖</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
     <style>
-        /* Loading Screen */
-        #loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease-out;
-        }
-        .loading-content {
-            text-align: center;
-            color: white;
-        }
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .loading-text {
-            font-family: 'Poppins', sans-serif;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        .loading-subtext {
-            font-family: 'Dancing Script', cursive;
-            font-size: 24px;
-            opacity: 0.8;
-        }
-
-        /* Enhanced Background */
-        html { 
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%),
-                linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-attachment: fixed;
-            min-height: 100vh;
-        }
+        /* --- VIBRANT PARTY THEME --- */
         body { 
-            margin: 0; 
-            padding: 0; 
-            font-family: 'Poppins', sans-serif; 
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Floating particles */
-        .particle {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: float-particle 6s ease-in-out infinite;
-        }
-        @keyframes float-particle {
-            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
-            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.3; }
+            margin: 0; padding: 0; 
+            font-family: 'Nunito', sans-serif; 
+            overflow: hidden; 
+            background: #000;
         }
         
-        /* MODERN BIRTHDAY HEADER (New Design) */
-        .birthday-header {
-            position: absolute;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 90%;
-            max-width: 600px;
-            pointer-events: none; /* Allow clicking through empty space */
+        /* 1. FULL SCREEN MAP */
+        #map-background {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 1;
         }
 
-        .header-pill {
-            pointer-events: auto;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 12px 30px;
-            border-radius: 50px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.8);
-            text-align: center;
-            transition: transform 0.3s ease;
+        /* 2. FLOATING STORY CARD */
+        #story-card-container {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -45%);
+            width: 90%; max-width: 450px;
+            z-index: 10;
         }
 
-        .header-pill:hover {
-            transform: scale(1.02);
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .header-title {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 1.4rem;
-            color: #2d3436;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #ff9a9e 0%, #a18cd1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-family: 'Dancing Script', cursive;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .header-subtitle {
-            font-size: 0.85rem;
-            color: #636e72;
-            margin-top: 2px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Map Container */
-        #map { 
-            height: 100vh; 
-            width: 100%; 
-            position: relative;
-        }
-
-        /* Enhanced Popup Card */
-        .custom-popup .leaflet-popup-content-wrapper {
-            border-radius: 20px;
-            padding: 0;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            border: 2px solid #ff9a9e;
-            backdrop-filter: blur(10px);
-            background: rgba(255,255,255,0.95);
-        }
-        .custom-popup .leaflet-popup-content {
-            margin: 0;
-            width: 340px !important;
-        }
-        
-        /* Style for the Photo inside the popup */
-        .popup-photo {
-            width: 100%;
-            height: auto;
-            min-height: 200px;
-            max-height: 400px;
-            object-fit: contain;
-            display: block;
-            border-bottom: 3px solid #fecfef;
-            background: #f8f9fa;
-            border-radius: 8px 8px 0 0;
-        }
-
-        /* Style for the Video inside the popup */
-        .popup-video {
-            width: 100%;
-            height: auto;
-            min-height: 200px;
-            max-height: 400px;
-            display: block;
-            border-bottom: 3px solid #fecfef;
-            border-radius: 8px 8px 0 0;
-        }
-
-        /* Style for the Text inside the popup */
-        .popup-text-container {
-            padding: 20px;
-            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-        }
-        .popup-from {
-            font-weight: 700;
-            color: #ff6b6b;
-            font-size: 16px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-family: 'Dancing Script', cursive;
-        }
-        .popup-analogy {
-            font-weight: 600;
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 8px;
-            font-style: italic;
-        }
-        .popup-message {
-            font-size: 14px;
-            color: #555;
-            line-height: 1.6;
-            font-style: italic;
-        }
-
-        /* Style for the Birthday Marker */
-        .birthday-marker {
-            background: linear-gradient(45deg, #ff9a9e, #fecfef);
-            border: 3px solid #fff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .header-title { font-size: 1.1rem; }
-            .gradient-text { font-size: 1.5rem; }
-            .custom-popup .leaflet-popup-content { width: 280px !important; }
-        }
-
-        /* Tour Controls */
-        .tour-controls {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            gap: 15px;
-        }
-        .tour-button {
-            background: linear-gradient(135deg, #ff9a9e, #fecfef);
-            color: white;
-            border: none;
-            padding: 15px 25px;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 25px;
             border-radius: 30px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(255,154,158,0.3);
-            transition: all 0.3s ease;
-            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            border: 4px solid rgba(255,255,255,0.6);
+            text-align: center;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
         }
-        .tour-button:hover {
-            background: linear-gradient(135deg, #ff6b6b, #ff9a9e);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(255,154,158,0.4);
+
+        /* --- TYPOGRAPHY --- */
+        .chapter-header {
+            font-family: 'Fredoka One', cursive; 
+            color: #6c5ce7; 
+            font-size: 1.5rem; 
+            letter-spacing: 1px;
+            margin-top: 5px; margin-bottom: 15px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+            text-transform: uppercase;
         }
-        .tour-button:active {
-            transform: translateY(-1px);
+
+        /* --- EVIDENCE MEDIA (SMART FIT) --- */
+        .media-container {
+            width: 100%; height: 280px; 
+            display: flex; justify-content: center; align-items: center; 
+            margin-bottom: 15px;
+            background: #f1f2f6; 
+            border-radius: 20px; overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+            border: 1px solid white;
         }
+        
+        .evidence-img { 
+            width: 100%; height: 100%; 
+            display: block;
+            transition: transform 0.5s;
+        }
+
+        .memory-text { 
+            font-size: 1.1rem; line-height: 1.5; color: #636e72; 
+            font-weight: 700; margin-bottom: 10px; 
+        }
+        
+        .memory-author { 
+            font-weight: 900; color: #ff7675; display: block; 
+            font-size: 0.85rem; text-transform: uppercase; 
+            letter-spacing: 1px; margin-bottom: 15px;
+            background: #fff0f0; padding: 5px 15px; border-radius: 20px;
+            display: inline-block;
+        }
+
+        .connector-line { height: 30px; width: 4px; background: #dfe6e9; margin: 0 auto 15px auto; border-radius: 10px; }
+
+        /* --- THE STORY REVEAL --- */
+        .conclusion-box {
+            display: none; animation: backInUp 0.6s;
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            padding: 25px; border-radius: 25px; color: white;
+            width: 100%; box-sizing: border-box;
+            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.4);
+        }
+
+        .narrative-text {
+            font-size: 1.15rem; color: #fff; margin-bottom: 20px; font-weight: 700;
+            line-height: 1.4; text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .verdict-reveal {
+            background: white; padding: 15px; border-radius: 20px;
+            display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: #2d3436; transform: rotate(-2deg);
+        }
+
+        .verdict-icon { font-size: 3.5rem; display: block; margin-bottom: 5px; animation: bounce 2s infinite; }
+        .verdict-title { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: #6c5ce7; text-transform: uppercase; }
+        
+        /* --- BUTTONS --- */
+        .btn-style {
+            background: linear-gradient(45deg, #FF9A9E, #FECFEF); border: none; color: #d63031;
+            padding: 15px 30px; font-family: 'Nunito', sans-serif; font-weight: 900; letter-spacing: 0.5px;
+            font-size: 1.1rem; cursor: pointer; transition: 0.3s;
+            border-radius: 50px; box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+            width: 100%;
+        }
+        .btn-style:hover { transform: scale(1.02); box-shadow: 0 8px 20px rgba(255, 154, 158, 0.6); background: white; }
+
+        .next-btn {
+            background: white; color: #6c5ce7; 
+            display: none; margin-top: 15px;
+        }
+
+        /* --- MAP TOOLTIPS --- */
+        .location-tooltip {
+            background: #fff; border: 3px solid #6c5ce7; color: #6c5ce7;
+            font-family: 'Nunito', sans-serif; font-weight: 900;
+            font-size: 15px; padding: 8px 15px; border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { border: none !important; }
+
+        .pulse-icon {
+            background: #FF7675; border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(255, 118, 117, 1);
+            animation: pulse-ring 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.5); box-shadow: 0 0 0 0 rgba(255, 118, 117, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(255, 118, 117, 0); }
+            100% { transform: scale(0.5); box-shadow: 0 0 0 0 rgba(255, 118, 117, 0); }
+        }
+        @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
+
     </style>
 </head>
 <body>
 
-    <div id="loading">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Loading Memories...</div>
-            <div class="loading-subtext">Happy Birthday Shashwat! 🎉</div>
+    <div id="map-background"></div>
+
+    <div id="story-card-container">
+        <div class="glass-card animate__animated animate__fadeInUp">
+            
+            <div style="font-size: 2.5rem; margin-bottom: 5px;">🎉</div>
+            <div id="chapter-header" class="chapter-header">Trait #1</div>
+
+            <div class="media-container">
+                <img id="ev-img" class="evidence-img" src="" style="display:none;">
+                <video id="ev-video" class="evidence-img" src="" controls style="display:none;"></video>
+            </div>
+            
+            <div id="ev-text" class="memory-text"></div>
+            <span id="ev-author" class="memory-author"></span>
+
+            <div class="connector-line"></div>
+
+            <button id="reveal-btn" class="btn-style" onclick="revealConclusion()">
+                🤔 What does this reveal?
+            </button>
+
+            <div id="conclusion-container" class="conclusion-box">
+                <div id="conc-narrative" class="narrative-text"></div>
+                
+                <div class="verdict-reveal">
+                    <div class="verdict-icon" id="conc-icon"></div>
+                    <div class="verdict-title" id="conc-title"></div>
+                </div>
+                <br>
+                <button id="next-btn" class="btn-style next-btn" onclick="nextStory()">
+                    Next Trait <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
         </div>
     </div>
-
-    <div class="birthday-header">
-        <div class="header-pill">
-            <div class="header-title">
-                The Other Side of <span class="gradient-text">25</span>
-            </div>
-            <div class="header-subtitle">
-                <i class="fas fa-plane"></i> Exploring memories around the world
-            </div>
-        </div>
-    </div>
-
-    <div class="tour-controls">
-        <button id="start-tour" class="tour-button">🎬 Start Story Tour</button>
-        <button id="stop-tour" class="tour-button" style="display: none;">⏹️ Stop Tour</button>
-    </div>
-
-    <div id="map"></div>
 
     <script>
-        // --- STEP 1: INITIALIZE MAP ---
-        var map = L.map('map', {
-            zoomControl: true,
-            scrollWheelZoom: true,
-            center: [20, 0], // Default center
-            zoom: 2
-        });
+        // --- THE STORYLINE: Connecting Memory to Metaphor ---
+        // css_fit: 'cover' (fills box) OR 'contain' (shows whole)
+        // css_pos: 'center', 'top', 'bottom', 'center 20%'
+        
+        const storyline = [
+            {
+                chapter: "Trait #1: The Sole Protector",
+                location: "📍 Munich Beach",
+                mem_lat: 48.1319, mem_lng: 11.6019, 
+                mem_img: "Images/aditi.jpeg",
+                css_fit: "cover", css_pos: "center", // Aditi: Full Box
+                mem_text: "At the beach party, I arrived late and hungry. Shashwat noticed immediately, ran to get me food, and didn't leave my side until I was fed.",
+                mem_author: "Memory: Aditi",
+                
+                // The Logic connecting memory to object
+                narrative: "He cushions the hard impact of life and supports your sole. He isn't a flashy high-heel that hurts you, he is...",
+                conc_icon: "👟", conc_title: "Comfy Sneakers"
+            },
+            {
+                chapter: "Trait #2: The Harmonizer",
+                location: "📍 Porto, Portugal",
+                mem_lat: 41.1579, mem_lng: -8.6291,
+                mem_img: "Images/vinit.jpeg", 
+                css_fit: "contain", css_pos: "center", // Vinit: Fit to box
+                mem_text: "Even during the parking disaster in Porto when there was zero space and high stress...",
+                mem_author: "Memory: Vinit",
+                
+                narrative: "When the world is screaming and chaotic, he doesn't toot his own horn. He just brings the sweet melody.",
+                conc_icon: "🪈", conc_title: "A Flute"
+            },
+            {
+                chapter: "Trait #3: The Unpaid Intern",
+                location: "📍 Vienna, Austria",
+                mem_lat: 48.2082, mem_lng: 16.3738,
+                mem_img: "Images/diksha.jpeg",
+                mem_text: "When I was too drunk to remember anything, he made sure I got home safe. He has always been a blessing.",
+                mem_author: "Memory: Diksha",
+                css_fit: "cover", css_pos: "center 20%", // Diksha: Cut top/bottom
 
-        // --- STEP 2: LOAD MAP TILES ---
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            opacity: 0.4
-        }).addTo(map);
+                narrative: "He works tirelessly for the betterment of society (us) without getting paid. If he wasn't an engineer, he'd be broke but happy as a...",
+                conc_icon: "🤝", conc_title: "Social Worker"
+            },
+            {
+                chapter: "Trait #4: The Texture Paradox",
+                location: "📍 Innsbruck, Austria",
+                mem_lat: 47.2692, mem_lng: 11.4041,
+                mem_img: "Images/meghna.jpeg",
+                mem_text: "Innsbruck, where it was a double date—only Shashwat didn't know it yet!",
+                mem_author: "Memory: Meghna",
+                css_fit: "cover", css_pos: "center 70%", // Meghna: Focus lower
 
-        // --- STEP 3: YOUR DATA LIST ---
-        var memories = [
-            {
-                lat: 47.2692, 
-                lng: 11.4041, 
-                name: "Meghna", 
-                message: "Innsbruck where it was a double date (me, Krishnan, you & Shashwat), only that you & Shashwat didn't know it yet❤️", 
-                photo: "Images/meghna.jpeg",
-                icon: "🥾",
-                order: 5
+                narrative: "He is a man of contradictions. In texts? He ghosts you (Tissue Paper - flaky). In person? He keeps you warm (Decathlon Fleece - quality).",
+                conc_icon: "🧥", conc_title: "Fleece & Tissue"
             },
             {
-                lat: 48.1374, 
-                lng: 11.5755, 
-                name: "Krishnan", 
-                message: "Together with Shashwat & Meghna we went to Marienplatz, Shashwat & Meghna did tresspassing into a closed restaurant and went into kids play area and started playing", 
-                photo: "Images/krishnan.jpeg",
-                icon: "🧸",
-                order: 4
+                chapter: "Trait #5: The Ink Flow",
+                location: "📍 Reykjavik, Iceland",
+                mem_lat: 64.1466, mem_lng: -21.9426,
+                mem_img: "Images/srajit.jpeg",
+                mem_text: "Making memories from Iceland to Portugal.",
+                mem_author: "Memory: Srajit",
+                css_fit: "cover", css_pos: "top center", // Srajit: Big
+
+                narrative: "He flows smoothly, he never leaks secrets, and he leaves a permanent mark wherever he goes.",
+                conc_icon: "🖊️", conc_title: "Gel Pen"
             },
             {
-                lat: 48.1495, 
-                lng: 11.5780, 
-                name: "Nikita", 
-                message: "Munich, his house, his cooking, my appetite", 
-                photo: "Images/nikita.jpeg",
-                icon: "👨‍🍳",
-                order: 11
+                chapter: "Trait #6: The Ladies' Man",
+                location: "📍 IIT Patna, India",
+                mem_lat: 25.5358, mem_lng: 84.8511,
+                mem_img: "Images/shreya.jpeg",
+                mem_text: "Our group spent days and nights using the office space for parties and sleepovers, courtesy of him.",
+                mem_author: "Memory: Shreya",
+                css_fit: "cover", css_pos: "top center", // Shreya: Cut bottom
+
+                narrative: "High prestige. High demand. And somehow, always surrounded by ladies. He is basically...",
+                conc_icon: "🎓", conc_title: "Delhi University"
             },
             {
-                lat: 48.1492, 
-                lng: 11.5774, 
-                name: "Shivani", 
-                message: "Best memory I can't really define we always had a good time but what I really adore about him is: He's one of the kindest person I know and most accommodating one. He always made sure I never felt out of place whenever he was around", 
-                photo: "Images/shivani.jpeg",
-                icon: "🍄",
-                order: 10
+                chapter: "Trait #7: The Clarity",
+                location: "📍 London, UK",
+                mem_lat: 51.5074, mem_lng: -0.1278,
+                mem_img: "Images/disha.jpeg",
+                mem_text: "Instead of being younger, he felt like an older brother who cares for me a lot.",
+                mem_author: "Memory: Disha",
+                css_fit: "cover", css_pos: "top center", // Disha: Cut bottom
+
+                narrative: "When there is drama or dirt on the windshield of life, one spray of Shashwat wipes it all away. No streaks left behind.",
+                conc_icon: "🧼", conc_title: "Glass Cleaner"
             },
             {
-                lat: 48.1319, 
-                lng: 11.6019, 
-                name: "Aditi", 
-                message: "I have so many fond memories with Shashwat, but one of my favourites stands out clearly. There was a birthday party on the beach, and I reached quite late. Everyone had brought something special, and by the time I arrived, I was extremely hungry. When Shashwat noticed me quietly looking around for food, he immediately came running and started making a plate just for me. He stayed by my side, making sure I ate properly and felt comfortable, not leaving until I was completely fed and felt good. That moment—his kindness, and thoughtfulness—truly touched my heart.", 
-                photo: "Images/aditi.jpeg",
-                icon: "🏊",
-                order: 13
+                chapter: "Trait #8: The Reliable Ride",
+                location: "📍 Santa Cruz, USA",
+                mem_lat: 36.9741, mem_lng: -122.0308,
+                mem_img: "Images/yun.jpeg",
+                mem_text: "I love our Santa Cruz bonfire! Such a good memory.",
+                mem_author: "Memory: Yun",
+                css_fit: "cover", css_pos: "top center", // Yun: Cut bottom
+
+                narrative: "High mileage friendship. Low maintenance. And an engine that never quits (just don't ask him to speed).",
+                conc_icon: "🚗", conc_title: "A Toyota"
             },
             {
-                lat: 48.2082, 
-                lng: 16.3738, 
-                name: "Diksha", 
-                message: "I have memories with him in few countries by now but in Austria and Germany (munich) one are my favourite. Because in both places we have home ❤️ This photo summerises one of the day 15th sep 2023, i was so drunk to remember anything. He made sure that I reach home safe, I drink enough. Its just one of them, he has forever been like my younger brother, I know whom I can rely on. Be it my wedding, my birthday, with taking care of my sister, with introducing me best people. He has been a blessing to me ❤️", 
-                photo: "Images/diksha.jpeg",
-                icon: "🍺",
-                order: 3
+                chapter: "Trait #9: The Ghost",
+                location: "📍 Khada Danda Road",
+                mem_lat: 25.6155, mem_lng: 85.1355,
+                mem_img: "Images/hrisabh.jpeg", 
+                mem_video: "Images/hrisabh.mp4",
+                css_fit: "contain", css_pos: "center", // Video/Thumbnail: Keep full
+                mem_text: "We have great memories on Khada Danda road, but trying to reach him afterwards is another story...",
+                mem_author: "Memory: Hrishab",
+                
+                narrative: "You speak to him, but he doesn't speak back until 3 months later. He effectively functions as a vintage...",
+                conc_icon: "📱", conc_title: "Voicemail"
             },
             {
-                lat: 9.9312, 
-                lng: 76.2673, 
-                name: "Saurabh", 
-                message: "The most specific memory which cracks me up everytime is this: Where he used the \"Nada\" for tying up the shorts😂😂", 
-                photo: "Images/saurabh.jpeg",
-                icon: "😂",
-                order: 16
+                chapter: "Trait #10: The Spotlight",
+                location: "📍 Kerala, India",
+                mem_lat: 9.9312, mem_lng: 76.2673,
+                mem_img: "Images/saurabh.jpeg",
+                mem_text: "Using a 'Nada' to tie his shorts... he unintentionally becomes the highlight of the trip.",
+                mem_author: "Memory: Saurabh",
+                css_fit: "contain", css_pos: "center", 
+
+                narrative: "A normal sunflower looks for the light. Shashwat stands still wearing a Nada, and the spotlight finds HIM.",
+                conc_icon: "🌻", conc_title: "Reverse Sunflower"
             },
             {
-                lat: 47.5622, 
-                lng: 13.6493, 
-                name: "Ann", 
-                message: "thanks Shashwat for organising such a nice trip.", 
-                photo: "Images/Ann.jpeg",
-                icon: "🏔️",
-                order: 9
+                chapter: "Trait #11: The Softie",
+                location: "📍 Hallstatt, Austria",
+                mem_lat: 47.5622, mem_lng: 13.6493,
+                mem_img: "Images/Ann.jpeg",
+                mem_text: "Thanks for organising such a nice trip. It was smooth sailing.",
+                mem_author: "Memory: Ann",
+                css_fit: "contain", css_pos: "center",
+
+                narrative: "He has no crunch, no hard shell, and no nuts (metaphorically). Just pure, soft sweetness.",
+                conc_icon: "🍫", conc_title: "Milkyway Bar"
             },
             {
-                lat: 64.1466, 
-                lng: -21.9426, 
-                name: "Srajit", 
-                message: "Memories in Iceland and Portugal", 
-                photo: "Images/srajit.jpeg",
-                icon: "🧊",
-                order: 6
+                chapter: "Trait #12: The Natural",
+                location: "📍 Munich, Germany",
+                mem_lat: 48.1495, mem_lng: 11.5780,
+                mem_img: "Images/nikita.jpeg",
+                mem_text: "Munich: His house, his cooking, my appetite.",
+                mem_author: "Memory: Nikita",
+                css_fit: "contain", css_pos: "center",
+
+                narrative: "He isn't neon or flashing lights. He is the color of grounding, cooking, and nature.",
+                conc_icon: "🌲", conc_title: "Forest Green"
             },
             {
-                lat: 48.5734, 
-                lng: 7.7521, 
-                name: "Nancy", 
-                message: "Hahaha..Strassburg....or the starry night with you both", 
-                photo: "Images/nancy.jpeg",
-                icon: "⭐",
-                order: 7
+                chapter: "Trait #13: The Protagonist",
+                location: "📍 Marienplatz, Munich",
+                mem_lat: 48.1374, mem_lng: 11.5755,
+                mem_img: "Images/krishnan.jpeg",
+                mem_text: "Trespassing into a closed restaurant just to play in the kids' area.",
+                mem_author: "Memory: Krishnan",
+                css_fit: "contain", css_pos: "center",
+
+                narrative: "He doesn't need to act. One day, Hollywood will make a biopic about how nice (and crazy) he is.",
+                conc_icon: "🎬", conc_title: "Movie Character"
             },
             {
-                lat: 41.1579, 
-                lng: -8.6291, 
-                name: "Vinit", 
-                message: "The specific memory with Shashwat is from Porto when we were parking the car and there was no space 😂", 
-                photo: "Images/vinit.jpeg",
-                icon: "🚗",
-                order: 8
+                chapter: "Trait #14: The Electric Hug",
+                location: "📍 Strasbourg, France",
+                mem_lat: 48.5734, mem_lng: 7.7521,
+                mem_img: "Images/nancy.jpeg",
+                mem_text: "Strassburg and the starry nights with you.",
+                mem_author: "Memory: Nancy",
+                css_fit: "contain", css_pos: "center",
+
+                narrative: "He is shocking...ly cute. No batteries required for his warmth.",
+                conc_icon: "🐼", conc_title: "No-Battery Panda"
             },
             {
-                lat: 25.5358, 
-                lng: 84.8511, 
-                name: "Shreya", 
-                message: "Our group spent days and night using this office space in the admin building, treating this as our party place, playing cards and ordering shakes and burgers from Batido, watching movies and having sleepovers. Courtesy of our TPC officer Shashwat Mahajan😂", 
-                photo: "Images/shreya.jpeg",
-                icon: "👫",
-                order: 1
+                chapter: "Trait #15: The Breeze",
+                location: "📍 Munich Gym",
+                mem_lat: 48.1439, mem_lng: 11.5475,
+                mem_img: "Images/kara.jpeg",
+                mem_text: "In the fitness studio when we learnt dancing.",
+                mem_author: "Memory: Kara",
+                css_fit: "contain", css_pos: "center",
+
+                narrative: "You can't catch him, you can't hold him, but when he passes by, everything feels pleasant.",
+                conc_icon: "🍃", conc_title: "September Wind"
             },
             {
-                lat: 51.5074, 
-                lng: -0.1278, 
-                name: "Disha", 
-                message: "instead of being younger one felt like I had older brother who cares for me alot ❣️", 
-                photo: "Images/disha.jpeg",
-                icon: "✨",
-                order: 14
-            },
-            {
-                lat: 48.1439, 
-                lng: 11.5475, 
-                name: "Kara", 
-                message: "Heylo, In the fitness studio when we learnt dancing", 
-                photo: "Images/kara.jpeg",
-                icon: "💃",
-                order: 15
-            },
-            {
-                lat: 36.9741, 
-                lng: -122.0308, 
-                name: "Yun", 
-                message: "I love our Santa cruz bonfire! Such good memory", 
-                photo: "Images/yun.jpeg",
-                icon: "🔥",
-                order: 12
-            },
-            {
-                lat: 25.6155, 
-                lng: 85.1355, 
-                name: "Hrishab", 
-                message: "My memory with him on khada danda road", 
-                photo: "Images/hrisabh.jpeg",
-                video: "Images/hrisabh.mp4",
-                icon: "🍕",
-                order: 2
-            },
+                chapter: "Trait #16: The Foundation",
+                location: "📍 Munich, Germany",
+                mem_lat: 48.1492, mem_lng: 11.5774,
+                mem_img: "Images/shivani.jpeg",
+                mem_text: "He always made sure I never felt out of place whenever he was around.",
+                mem_author: "Memory: Shivani",
+                css_fit: "contain", css_pos: "center",
+
+                narrative: "He isn't a flashy skyscraper. He is the concrete foundation that makes everyone else feel safe.",
+                conc_icon: "❤️", conc_title: "Home Base"
+            }
         ];
 
-        // --- STEP 4: GENERATE MARKERS ---
-        // Sort memories by order
-        memories.sort((a, b) => {
-            const aOrder = a.order === undefined ? 999 : a.order;
-            const bOrder = b.order === undefined ? 999 : b.order;
-            return aOrder - bOrder;
-        });
-        
-        var bounds = L.latLngBounds();
-        var markers = []; // Store markers for tour
-        
-        memories.forEach(function(item, index) {
+        // --- 2. MAP SETUP ---
+        var map = L.map('map-background', {
+            zoomControl: false, scrollWheelZoom: false, dragging: false
+        }).setView([20,0], 2);
+
+        // Fun Pastel Tiles
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '', maxZoom: 19
+        }).addTo(map);
+
+        let currentMarker = null;
+
+        // --- 3. STORY ENGINE ---
+        let currentIndex = 0;
+
+        function loadStory(index) {
+            const data = storyline[index];
             
-            // A. Create the Birthday Icon
-            var birthdayIcon = L.divIcon({
-                className: 'birthday-marker',
-                html: item.icon,
-                iconSize: [40, 40],
-                iconAnchor: [20, 20]
+            document.getElementById('chapter-header').innerText = data.chapter;
+            
+            const imgEl = document.getElementById('ev-img');
+            const vidEl = document.getElementById('ev-video');
+            
+            // Apply SMART CROP Styles
+            const fitStyle = data.css_fit || 'contain';
+            const posStyle = data.css_pos || 'center';
+            imgEl.style.objectFit = fitStyle;
+            imgEl.style.objectPosition = posStyle;
+
+            if (data.mem_video) {
+                imgEl.style.display = 'none';
+                vidEl.style.display = 'block';
+                vidEl.src = data.mem_video;
+            } else {
+                vidEl.style.display = 'none';
+                imgEl.style.display = 'block';
+                imgEl.src = data.mem_img;
+            }
+
+            document.getElementById('ev-text').innerText = `"${data.mem_text}"`;
+            document.getElementById('ev-author').innerText = data.mem_author;
+
+            document.getElementById('conc-narrative').innerText = data.narrative;
+            document.getElementById('conc-icon').innerText = data.conc_icon;
+            document.getElementById('conc-title').innerText = data.conc_title;
+
+            document.getElementById('reveal-btn').style.display = 'block';
+            document.getElementById('conclusion-container').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('conclusion-container').classList.remove('animate__backInUp');
+
+            // Scroll Top
+            document.querySelector('.glass-card').scrollTop = 0;
+
+            // Fly to location
+            if(currentMarker) map.removeLayer(currentMarker);
+            
+            // Smart Padding to keep pin visible above card
+            map.flyTo([data.mem_lat, data.mem_lng], 13, {
+                animate: true, 
+                duration: 2.5,
+                paddingBottomLeft: [0, 450] // Push center UP
             });
 
-            // B. Create the Popup HTML
-            var mediaContent = item.video ? 
-                `<video class="popup-video" controls preload="metadata">
-                    <source src="${item.video}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>` :
-                `<img src="${item.photo}" class="popup-photo" alt="Memory">`;
-            
-            var popupContent = `
-                <div>
-                    ${mediaContent}
-                    <div class="popup-text-container">
-                        <div class="popup-from">🎁 From ${item.name}</div>
-                        ${item.analogy ? `<div class="popup-analogy">🧠 Analogy: ${item.analogy}</div>` : ''}
-                        <div class="popup-message">"${item.message}"</div>
-                    </div>
-                </div>
-            `;
+            setTimeout(() => {
+                let pulseIcon = L.divIcon({ className: 'pulse-icon', iconSize: [20,20] });
+                currentMarker = L.marker([data.mem_lat, data.mem_lng], {icon: pulseIcon}).addTo(map);
+                
+                currentMarker.bindTooltip(data.location, {
+                    permanent: true, direction: 'top', className: 'location-tooltip'
+                }).openTooltip();
 
-            // C. Add to Map
-            var marker = L.marker([item.lat, item.lng], { icon: birthdayIcon })
-                .addTo(map)
-                .bindPopup(popupContent, {
-                    className: 'custom-popup',
-                    closeButton: false
-                });
-            
-            bounds.extend([item.lat, item.lng]);
-            markers.push(marker); // Store for tour
-        });
-        
-        // --- STORY TOUR FUNCTIONALITY ---
-        var currentTourIndex = 0;
-        var isTourRunning = false;
-        var tourTimeout; 
-
-        function startStoryTour() {
-            if (isTourRunning) return;
-            isTourRunning = true;
-            currentTourIndex = 0;
-            
-            document.getElementById('start-tour').style.display = 'none';
-            document.getElementById('stop-tour').style.display = 'block';
-            
-            // Close any open popups
-            map.closePopup();
-            
-            // Start the tour
-            nextTourStop();
-        }
-
-        function stopStoryTour() {
-            isTourRunning = false;
-            clearTimeout(tourTimeout); 
-            map.closePopup();
-            
-            document.getElementById('start-tour').style.display = 'block';
-            document.getElementById('stop-tour').style.display = 'none';
-            
-            // Reset to full view
-            map.fitBounds(bounds, {padding: [20, 20]});
-        }
-
-        function nextTourStop() {
-            if (!isTourRunning) return;
-            
-            var marker = markers[currentTourIndex];
-            var memory = memories[currentTourIndex];
-            
-            // Smooth fly animation to location
-            map.flyTo([memory.lat, memory.lng], 8, {
-                animate: true,
-                duration: 2.5
-            });
-            
-            // Open popup after animation completes
-            tourTimeout = setTimeout(() => {
-                if (isTourRunning) {
-                    marker.openPopup();
-                    
-                    // Auto-play video if it's Hrishab's memory
-                    if (memory.video) {
-                        setTimeout(() => {
-                            var videoElement = document.querySelector('.popup-video');
-                            if (videoElement) {
-                                videoElement.play().catch(e => {
-                                    console.log('Video autoplay failed:', e);
-                                });
-                            }
-                        }, 500);
-                    }
-                }
             }, 2500);
-            
-            // Move to next after display time
-            var displayTime = memory.video ? 25000 : 8000;
-            
-            var totalWait = 2500 + displayTime;
-
-            tourTimeout = setTimeout(() => {
-                if (isTourRunning) {
-                    map.closePopup();
-                    currentTourIndex = (currentTourIndex + 1) % markers.length;
-                    nextTourStop();
-                }
-            }, totalWait);
         }
 
-        // Add event listeners
-        document.getElementById('start-tour').addEventListener('click', startStoryTour);
-        document.getElementById('stop-tour').addEventListener('click', stopStoryTour);
+        function revealConclusion() {
+            document.getElementById('reveal-btn').style.display = 'none';
+            const concBox = document.getElementById('conclusion-container');
+            concBox.style.display = 'block';
+            concBox.classList.add('animate__backInUp');
+            document.getElementById('next-btn').style.display = 'inline-block';
+            
+            // Auto Scroll
+            setTimeout(() => {
+                const card = document.querySelector('.glass-card');
+                card.scrollTo({ top: card.scrollHeight, behavior: 'smooth' });
+            }, 100);
+        }
 
-        // Create floating particles
-        function createParticles() {
-            for (let i = 0; i < 15; i++) {
-                setTimeout(() => {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = Math.random() * 100 + 'vw';
-                    particle.style.top = Math.random() * 100 + 'vh';
-                    particle.style.width = particle.style.height = (Math.random() * 6 + 2) + 'px';
-                    particle.style.animationDelay = Math.random() * 6 + 's';
-                    particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
-                    document.body.appendChild(particle);
-                    
-                    setTimeout(() => particle.remove(), 10000);
-                }, i * 200);
+        function nextStory() {
+            currentIndex++;
+            if(currentIndex < storyline.length) {
+                loadStory(currentIndex);
+            } else {
+                alert("That's the end of the story! Happy Birthday Shashwat! 🎂");
+                currentIndex = 0;
+                loadStory(0);
             }
         }
 
-        // Initialize when map loads
-        let loadingHidden = false;
-        
-        function hideLoadingScreen() {
-            if (loadingHidden) return;
-            loadingHidden = true;
-            
-            // Initial map fit
-            map.fitBounds(bounds, {padding: [50, 50]});
-
-            const loading = document.getElementById('loading');
-            if (loading) {
-                loading.style.opacity = '0';
-                setTimeout(() => {
-                    loading.style.display = 'none';
-                }, 500);
-            }
-        }
-        
-        // Try to hide when map is ready
-        map.whenReady(function() {
-            setTimeout(hideLoadingScreen, 1000); 
-        });
-        
-        // Start particle animation immediately
-        createParticles();
-        setInterval(createParticles, 8000);
+        // Initialize
+        loadStory(0);
 
     </script>
 </body>
