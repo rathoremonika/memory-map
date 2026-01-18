@@ -1,152 +1,524 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Our Memory Map</title>
+    <title>Happy Birthday Shashwat! 🎉</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
 
     <style>
-        /* 1. Basic Page Reset */
-        body { margin: 0; padding: 0; font-family: sans-serif; }
+        /* 1. Basic Page Reset with Birthday Theme */
+        html { 
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            background-attachment: fixed;
+        }
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Poppins', sans-serif; 
+            overflow: hidden;
+        }
+        
+        /* Birthday Header */
+        .birthday-header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            text-align: center;
+            background: transparent;
+            padding: 15px 30px;
+            border-radius: 50px;
+            /* box-shadow: 0 4px 15px rgba(0,0,0,0.2); */
+            animation: float 3s ease-in-out infinite;
+        }
+        .birthday-header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3em;
+            color: #fff;
+            margin: 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            font-weight: 900;
+        }
+        .birthday-header p {
+            font-size: 1.2em;
+            color: #fff;
+            margin: 5px 0 0 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-weight: 600;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
         
         /* 2. Map Container */
-        #map { height: 100vh; width: 100%; }
+        #map { 
+            height: 100vh; 
+            width: 100%; 
+            position: relative;
+        }
 
-        /* 3. Style for the Popup Card (The white box that opens) */
+        /* Confetti Animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ffd700;
+            animation: fall 5s linear infinite;
+            z-index: 999;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 3. Style for the Popup Card */
         .custom-popup .leaflet-popup-content-wrapper {
-            border-radius: 12px;
+            border-radius: 15px;
             padding: 0;
             overflow: hidden;
-            box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            border: 3px solid #ff9a9e;
         }
         .custom-popup .leaflet-popup-content {
             margin: 0;
-            width: 300px !important;
+            width: 320px !important;
         }
         
         /* 4. Style for the Photo inside the popup */
         .popup-photo {
             width: 100%;
-            height: 200px; /* Fixed height for consistency */
-            object-fit: cover; /* Crops image nicely to fit box */
+            height: auto;
+            min-height: 200px;
+            max-height: 400px;
+            object-fit: contain;
             display: block;
+            border-bottom: 3px solid #fecfef;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* 4.5. Style for the Video inside the popup */
+        .popup-video {
+            width: 100%;
+            height: auto;
+            min-height: 200px;
+            max-height: 400px;
+            display: block;
+            border-bottom: 3px solid #fecfef;
+            border-radius: 8px 8px 0 0;
         }
 
         /* 5. Style for the Text inside the popup */
         .popup-text-container {
-            padding: 16px;
-            background: #fff;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
         }
         .popup-from {
-            font-weight: bold;
-            color: #2c3e50;
-            font-size: 14px;
-            margin-bottom: 4px;
+            font-weight: 700;
+            color: #ff6b6b;
+            font-size: 16px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            font-family: 'Dancing Script', cursive;
+        }
+        .popup-analogy {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-style: italic;
         }
         .popup-message {
-            font-size: 15px;
+            font-size: 14px;
             color: #555;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-style: italic;
         }
 
-        /* 6. Style for the Emoji Marker on the map */
-        .emoji-icon {
-            background: none;
+        /* 6. Style for the Birthday Marker */
+        .birthday-marker {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            border: 3px solid #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            /* animation: bounce 2s infinite; */
+        }
+        
+        /* @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        } */
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .birthday-header h1 {
+                font-size: 2em;
+            }
+            .custom-popup .leaflet-popup-content {
+                width: 280px !important;
+            }
+        }
+
+        /* Tour Controls */
+        .tour-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        .tour-button {
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
             border: none;
-            font-size: 30px; /* Size of the emoji */
-            text-align: center;
-            line-height: 1;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Slight shadow to make it pop */
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .tour-button:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
 
+    <!-- Birthday Header -->
+    <div class="birthday-header">
+        <h1>Welcome to the other side of 25 :p</h1>
+        <p>Explore memories from around the world 🌍</p>
+    </div>
+
+    <!-- Story Tour Button -->
+    <div class="tour-controls">
+        <button id="start-tour" class="tour-button">🎬 Start Story Tour</button>
+        <button id="stop-tour" class="tour-button" style="display: none;">⏹️ Stop Tour</button>
+    </div>
+
     <div id="map"></div>
 
     <script>
         // --- STEP 1: INITIALIZE MAP ---
-        // Coordinates [Lat, Lng], Zoom Level (2 is world view, 13 is city view)
-        var map = L.map('map').setView([20.0, 0.0], 2);
+        var map = L.map('map', {
+            zoomControl: true,
+            scrollWheelZoom: true,
+            center: [20, 0], // Default center
+            zoom: 2
+        });
 
-        // --- STEP 2: LOAD MAP TILES (Appearance) ---
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // --- STEP 2: LOAD MAP TILES ---
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '© OpenStreetMap'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            opacity: 0.4
         }).addTo(map);
 
         // --- STEP 3: YOUR DATA LIST ---
-        // Edit this list to add your own people, places, and photos.
         var memories = [
             {
-                lat: 48.8566, 
-                lng: 2.3522, 
-                name: "Alice", 
-                message: "Picnic under the trees. Best baguette ever!", 
-                photo: "photo1.jpg", // Make sure this file exists in your folder
-                icon: "🌲" 
+                lat: 47.2692, 
+                lng: 11.4041, 
+                name: "Meghna", 
+                message: "Innsbruck where it was a double date (me, Krishnan, you & Shashwat), only that you & Shashwat didn't know it yet❤️", 
+                photo: "Images/meghna.jpeg",
+                icon: "🥾",
+                order: 5
             },
             {
-                lat: 35.6762, 
-                lng: 139.6503, 
-                name: "Bob", 
-                message: "Swimming at the hotel pool in Tokyo!", 
-                photo: "photo2.jpg",
-                icon: "🏊"
+                lat: 48.1374, 
+                lng: 11.5755, 
+                name: "Krishnan", 
+                message: "Together with Shashwat & Meghna we went to Marienplatz, Shashwat & Meghna did tresspassing into a closed restaurant and went into kids play area and started playing", 
+                photo: "Images/krishnan.jpeg",
+                icon: "🧸",
+                order: 4
             },
             {
-                lat: 36.1699, 
-                lng: -115.1398, 
-                name: "Charlie", 
-                message: "Hiking Red Rock Canyon. It was so hot!", 
-                photo: "photo3.jpg",
-                icon: "🥾"
+                lat: 48.1495, 
+                lng: 11.5780, 
+                name: "Nikita", 
+                message: "Munich, his house, his cooking, my appetite", 
+                photo: "Images/nikita.jpeg",
+                icon: "👨‍🍳",
+                order: 11
             },
             {
-                lat: -33.8688, 
-                lng: 151.2093, 
-                name: "Sarah", 
-                message: "Cheers from the Sydney Opera House bar!", 
-                photo: "photo4.jpg",
-                icon: "🍺"
-            }
+                lat: 48.1492, 
+                lng: 11.5774, 
+                name: "Shivani", 
+                message: "Best memory I can't really define we always had a good time but what I really adore about him is: He's one of the kindest person I know and most accommodating one. He always made sure I never felt out of place whenever he was around", 
+                photo: "Images/shivani.jpeg",
+                icon: "🍄",
+                order: 10
+            },
+            {
+                lat: 48.1319, 
+                lng: 11.6019, 
+                name: "Aditi", 
+                message: "I have so many fond memories with Shashwat, but one of my favourites stands out clearly. There was a birthday party on the beach, and I reached quite late. Everyone had brought something special, and by the time I arrived, I was extremely hungry. When Shashwat noticed me quietly looking around for food, he immediately came running and started making a plate just for me. He stayed by my side, making sure I ate properly and felt comfortable, not leaving until I was completely fed and felt good. That moment—his kindness, and thoughtfulness—truly touched my heart.", 
+                photo: "Images/aditi.jpeg",
+                icon: "🏊",
+                order: 13
+            },
+            {
+                lat: 48.2082, 
+                lng: 16.3738, 
+                name: "Diksha", 
+                message: "I have memories with him in few countries by now but in Austria and Germany (munich) one are my favourite. Because in both places we have home ❤️ This photo summerises one of the day 15th sep 2023, i was so drunk to remember anything. He made sure that I reach home safe, I drink enough. Its just one of them, he has forever been like my younger brother, I know whom I can rely on. Be it my wedding, my birthday, with taking care of my sister, with introducing me best people. He has been a blessing to me ❤️", 
+                photo: "Images/diksha.jpeg",
+                icon: "🍺",
+                order: 3
+            },
+            {
+                lat: 9.9312, 
+                lng: 76.2673, 
+                name: "Saurabh", 
+                message: "The most specific memory which cracks me up everytime is this: Where he used the \"Nada\" for tying up the shorts😂😂", 
+                photo: "Images/saurabh.jpeg",
+                icon: "😂",
+                order: 16
+            },
+            {
+                lat: 47.5622, 
+                lng: 13.6493, 
+                name: "Ann", 
+                message: "thanks Shashwat for organising such a nice trip.", 
+                photo: "Images/Ann.jpeg",
+                icon: "🏔️",
+                order: 9
+            },
+            {
+                lat: 64.1466, 
+                lng: -21.9426, 
+                name: "Srajit", 
+                message: "Memories in Iceland and Portugal", 
+                photo: "Images/srajit.jpeg",
+                icon: "🧊",
+                order: 6
+            },
+            {
+                lat: 48.5734, 
+                lng: 7.7521, 
+                name: "Nancy", 
+                message: "Hahaha..Strassburg....or the starry night with you both", 
+                photo: "Images/nancy.jpeg",
+                icon: "⭐",
+                order: 7
+            },
+            {
+                lat: 41.1579, 
+                lng: -8.6291, 
+                name: "Vinit", 
+                message: "The specific memory with Shashwat is from Porto when we were parking the car and there was no space 😂", 
+                photo: "Images/vinit.jpeg",
+                icon: "🚗",
+                order: 7
+            },
+            {
+                lat: 25.5358, 
+                lng: 84.8511, 
+                name: "Shreya", 
+                message: "Our group spent days and night using this office space in the admin building, treating this as our party place, playing cards and ordering shakes and burgers from Batido, watching movies and having sleepovers. Courtesy of our TPC officer Shashwat Mahajan😂", 
+                photo: "Images/shreya.jpeg",
+                icon: "👫",
+                order: 0
+            },
+            {
+                lat: 51.5074, 
+                lng: -0.1278, 
+                name: "Disha", 
+                message: "instead of being younger one felt like I had older brother who cares for me alot ❣️", 
+                photo: "Images/disha.jpeg",
+                icon: "✨",
+                order: 13
+            },
+            {
+                lat: 48.1439, 
+                lng: 11.5475, 
+                name: "Kara", 
+                message: "Heylo, In the fitness studio when we learnt dancing", 
+                photo: "Images/kara.jpeg",
+                icon: "💃",
+                order: 14
+            },
+            {
+                lat: 36.9741, 
+                lng: -122.0308, 
+                name: "Yun", 
+                message: "I love our Santa cruz bonfire! Such good memory", 
+                photo: "Images/yun.jpeg",
+                icon: "🔥",
+                order: 11
+            },
+            {
+                lat: 25.6155, 
+                lng: 85.1355, 
+                name: "Hrishab", 
+                message: "My memory with him on khada danda road", 
+                photo: "Images/hrisabh.jpeg",
+                video: "Images/hrisabh.mp4",
+                icon: "🍕",
+                order: 1
+            },
         ];
 
         // --- STEP 4: GENERATE MARKERS ---
-        memories.forEach(function(item) {
+        // Sort memories by order if specified (undefined = no order)
+        memories.sort((a, b) => {
+            const aOrder = a.order === undefined ? 999 : a.order;
+            const bOrder = b.order === undefined ? 999 : b.order;
+            return aOrder - bOrder;
+        });
+        
+        var bounds = L.latLngBounds();
+        var markers = []; // Store markers for tour
+        memories.forEach(function(item, index) {
             
-            // A. Create the Emoji Icon
-            var emojiIcon = L.divIcon({
-                className: 'emoji-icon',
+            // A. Create the Birthday Icon
+            var birthdayIcon = L.divIcon({
+                className: 'birthday-marker',
                 html: item.icon,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15] // Centers the emoji on the coordinates
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
             });
 
             // B. Create the Popup HTML
+            var mediaContent = item.video ? 
+                `<video class="popup-video" controls preload="metadata">
+                    <source src="${item.video}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>` :
+                `<img src="${item.photo}" class="popup-photo" alt="Memory">`;
+            
             var popupContent = `
                 <div>
-                    <img src="${item.photo}" class="popup-photo" alt="Memory">
+                    ${mediaContent}
                     <div class="popup-text-container">
-                        <div class="popup-from">Msg from ${item.name}</div>
+                        <div class="popup-from">🎁 From ${item.name}</div>
+                        ${item.analogy ? `<div class="popup-analogy">🧠 Analogy: ${item.analogy}</div>` : ''}
                         <div class="popup-message">"${item.message}"</div>
                     </div>
                 </div>
             `;
 
             // C. Add to Map
-            L.marker([item.lat, item.lng], { icon: emojiIcon })
+            var marker = L.marker([item.lat, item.lng], { icon: birthdayIcon })
                 .addTo(map)
                 .bindPopup(popupContent, {
-                    className: 'custom-popup', // Uses our custom CSS
-                    closeButton: false         // Hides the default 'x' button for a cleaner look
+                    className: 'custom-popup',
+                    closeButton: false
                 });
+            
+            bounds.extend([item.lat, item.lng]);
+            markers.push(marker); // Store for tour
         });
+        
+        map.fitBounds(bounds, {padding: [20, 20]});
+        
+        // Ensure markers are visible
+        setTimeout(() => {
+            map.fitBounds(bounds, {padding: [20, 20]});
+        }, 1000);
+
+        // --- STORY TOUR FUNCTIONALITY ---
+        var currentTourIndex = 0;
+        var tourInterval;
+        var isTourRunning = false;
+
+        function startStoryTour() {
+            if (isTourRunning) return;
+            isTourRunning = true;
+            currentTourIndex = 0;
+            
+            document.getElementById('start-tour').style.display = 'none';
+            document.getElementById('stop-tour').style.display = 'block';
+            
+            // Close any open popups
+            map.closePopup();
+            
+            // Start the tour
+            nextTourStop();
+        }
+
+        function nextTourStop() {
+            if (!isTourRunning) return;
+            
+            var marker = markers[currentTourIndex];
+            var memory = memories[currentTourIndex];
+            
+            // Pan to the location
+            map.setView([memory.lat, memory.lng], 8, {animate: true});
+            
+            // Open popup after a short delay
+            setTimeout(() => {
+                if (isTourRunning) {
+                    marker.openPopup();
+                    
+                    // Auto-play video if it's Hrishab's memory
+                    if (memory.video) {
+                        setTimeout(() => {
+                            var videoElement = document.querySelector('.popup-video');
+                            if (videoElement) {
+                                videoElement.play().catch(e => {
+                                    console.log('Video autoplay failed:', e);
+                                });
+                            }
+                        }, 500); // Wait for popup to render
+                    }
+                }
+            }, 1000);
+            
+            // Move to next after 8 seconds (or longer for video)
+            var displayTime = memory.video ? 25000 : 8000; // 25 seconds for video (21s + buffer)
+            setTimeout(() => {
+                if (isTourRunning) {
+                    map.closePopup();
+                    currentTourIndex = (currentTourIndex + 1) % markers.length;
+                    nextTourStop();
+                }
+            }, displayTime);
+        }
+
+        function stopStoryTour() {
+            isTourRunning = false;
+            clearTimeout(tourInterval);
+            map.closePopup();
+            
+            document.getElementById('start-tour').style.display = 'block';
+            document.getElementById('stop-tour').style.display = 'none';
+            
+            // Reset to full view
+            map.fitBounds(bounds, {padding: [20, 20]});
+        }
+
+        // Add event listeners
+        document.getElementById('start-tour').addEventListener('click', startStoryTour);
+        document.getElementById('stop-tour').addEventListener('click', stopStoryTour);
 
     </script>
 </body>
