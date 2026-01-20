@@ -1,502 +1,653 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Shashwat's Character Arc 📖</title>
+    <title>Shashwat's World Tour 🌎</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Fredoka+One&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
     <style>
-        /* --- VIBRANT PARTY THEME --- */
-        body { 
-            margin: 0; padding: 0; 
-            font-family: 'Nunito', sans-serif; 
-            overflow: hidden; 
-            background: #000;
-        }
+        body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; overflow: hidden; background: #000; }
         
-        /* 1. FULL SCREEN MAP */
-        #map-background {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 1;
+        #map-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+
+        /* --- START SCREEN --- */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); 
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            gap: 20px;
         }
 
-        /* 2. FLOATING STORY CARD */
+        .mode-btn {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white; padding: 20px 40px; border-radius: 50px;
+            font-family: 'Fredoka One', cursive; font-size: 1.5rem;
+            border: none; cursor: pointer; width: 320px;
+            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.5);
+            transition: transform 0.2s;
+        }
+        .mode-btn:hover { transform: scale(1.05); background: white; color: #6c5ce7; }
+        .mode-btn.secondary { background: #fdcb6e; color: #d35400; box-shadow: 0 10px 25px rgba(253, 203, 110, 0.4); }
+
+        /* --- CARD DESIGN --- */
         #story-card-container {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -45%);
-            width: 90%; max-width: 450px;
-            z-index: 10;
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; max-width: 480px;
+            z-index: 1000;
+            display: none; 
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
             padding: 25px;
-            border-radius: 30px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-            border: 4px solid rgba(255,255,255,0.6);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 2px solid rgba(255,255,255,1);
             text-align: center;
-            max-height: 85vh;
+            max-height: 85vh; 
             overflow-y: auto;
             position: relative;
+            scroll-behavior: smooth; 
+        }
+        .glass-card::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        .close-btn {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 1.8rem; color: #b2bec3; cursor: pointer;
+            z-index: 10;
+        }
+        .close-btn:hover { color: #d63031; }
+
+        .chapter-title {
+            font-family: 'Fredoka One', cursive; color: #6c5ce7;
+            font-size: 1.5rem; margin-bottom: 15px; text-transform: uppercase;
         }
 
-        /* --- TYPOGRAPHY --- */
-        .chapter-header {
-            font-family: 'Fredoka One', cursive; 
-            color: #6c5ce7; 
-            font-size: 1.5rem; 
-            letter-spacing: 1px;
-            margin-top: 5px; margin-bottom: 15px;
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
-            text-transform: uppercase;
+        /* --- PHOTO/VIDEO CONTAINER --- */
+        .media-box {
+            width: 100%; height: 320px; 
+            background: #fff; border-radius: 18px;
+            overflow: hidden; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border: 4px solid white;
         }
+        .evidence-media { width: 100%; height: 100%; display: block; }
+        
+        /* Ensure video fills space nicely */
+        video.evidence-media { object-fit: cover; }
 
-        /* --- EVIDENCE MEDIA (SMART FIT) --- */
-        .media-container {
-            width: 100%; height: 280px; 
-            display: flex; justify-content: center; align-items: center; 
-            margin-bottom: 15px;
-            background: #f1f2f6; 
-            border-radius: 20px; overflow: hidden;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-            border: 1px solid white;
+        .quote-box {
+            background: #f4f7f6; padding: 20px; border-radius: 15px;
+            font-size: 1rem; color: #2d3436; font-style: italic; line-height: 1.6;
+            border-left: 5px solid #fab1a0; margin-bottom: 10px; text-align: left; 
         }
         
-        .evidence-img { 
-            width: 100%; height: 100%; 
-            display: block;
-            transition: transform 0.5s;
+        .author-tag {
+            display: block; text-align: right; font-weight: 800; 
+            color: #fab1a0; font-size: 0.9rem; text-transform: uppercase; 
+            margin-bottom: 20px; letter-spacing: 1px;
         }
 
-        .memory-text { 
-            font-size: 1.1rem; line-height: 1.5; color: #636e72; 
-            font-weight: 700; margin-bottom: 10px; 
+        .action-btn {
+            background: #2d3436; color: white; border: none;
+            padding: 15px 30px; border-radius: 12px;
+            font-weight: 700; font-size: 1.1rem; cursor: pointer;
+            width: 100%; margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        
-        .memory-author { 
-            font-weight: 900; color: #ff7675; display: block; 
-            font-size: 0.85rem; text-transform: uppercase; 
-            letter-spacing: 1px; margin-bottom: 15px;
-            background: #fff0f0; padding: 5px 15px; border-radius: 20px;
-            display: inline-block;
-        }
+        .action-btn:hover { background: #000; transform: translateY(-2px); }
 
-        .connector-line { height: 30px; width: 4px; background: #dfe6e9; margin: 0 auto 15px auto; border-radius: 10px; }
-
-        /* --- THE STORY REVEAL --- */
-        .conclusion-box {
-            display: none; animation: backInUp 0.6s;
-            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-            padding: 25px; border-radius: 25px; color: white;
-            width: 100%; box-sizing: border-box;
-            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.4);
+        /* CONCLUSION AREA */
+        .conclusion-wrapper {
+            display: none; margin-top: 20px;
+            background: linear-gradient(135deg, #fff0f0 0%, #ffeaa7 100%);
+            padding: 25px; border-radius: 20px;
+            animation: fadeIn 0.8s;
         }
+        .verdict-emoji { font-size: 3rem; display: block; margin-bottom: 5px; }
+        .verdict-label { font-family: 'Fredoka One'; color: #6c5ce7; font-size: 1.4rem; }
 
-        .narrative-text {
-            font-size: 1.15rem; color: #fff; margin-bottom: 20px; font-weight: 700;
-            line-height: 1.4; text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        /* --- MAP PINS --- */
+        .custom-pin {
+            background: #fff; border: 3px solid #6c5ce7; border-radius: 50%;
+            text-align: center; font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex !important; justify-content: center; align-items: center;
+            transition: transform 0.2s;
         }
+        .custom-pin:hover { transform: scale(1.3); z-index: 999 !important; border-color: #fab1a0; }
 
-        .verdict-reveal {
-            background: white; padding: 15px; border-radius: 20px;
-            display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            color: #2d3436; transform: rotate(-2deg);
+        .location-label {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #6c5ce7; color: #2d3436;
+            font-family: 'Fredoka One', cursive; font-size: 14px;
+            padding: 8px 15px; border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            white-space: nowrap;
         }
-
-        .verdict-icon { font-size: 3.5rem; display: block; margin-bottom: 5px; animation: bounce 2s infinite; }
-        .verdict-title { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: #6c5ce7; text-transform: uppercase; }
-        
-        /* --- BUTTONS --- */
-        .btn-style {
-            background: linear-gradient(45deg, #FF9A9E, #FECFEF); border: none; color: #d63031;
-            padding: 15px 30px; font-family: 'Nunito', sans-serif; font-weight: 900; letter-spacing: 0.5px;
-            font-size: 1.1rem; cursor: pointer; transition: 0.3s;
-            border-radius: 50px; box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
-            width: 100%;
-        }
-        .btn-style:hover { transform: scale(1.02); box-shadow: 0 8px 20px rgba(255, 154, 158, 0.6); background: white; }
-
-        .next-btn {
-            background: white; color: #6c5ce7; 
-            display: none; margin-top: 15px;
-        }
-
-        /* --- MAP TOOLTIPS --- */
-        .location-tooltip {
-            background: #fff; border: 3px solid #6c5ce7; color: #6c5ce7;
-            font-family: 'Nunito', sans-serif; font-weight: 900;
-            font-size: 15px; padding: 8px 15px; border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
+        .leaflet-tooltip { background: transparent; border: none; box-shadow: none; }
         .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { border: none !important; }
-
-        .pulse-icon {
-            background: #FF7675; border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(255, 118, 117, 1);
-            animation: pulse-ring 2s infinite;
-        }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.5); box-shadow: 0 0 0 0 rgba(255, 118, 117, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(255, 118, 117, 0); }
-            100% { transform: scale(0.5); box-shadow: 0 0 0 0 rgba(255, 118, 117, 0); }
-        }
-        @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
 
     </style>
 </head>
 <body>
 
+    <div id="start-overlay">
+        <h1 style="color:white; font-family:'Fredoka One'; font-size:3rem; text-shadow:0 5px 10px rgba(0,0,0,0.5); text-align:center;">Shashwat's<br>World Tour 🌎</h1>
+        <button class="mode-btn" onclick="startManual()">🕹️ Manual Explore</button>
+        <button class="mode-btn secondary" onclick="startAutoplay()">🍿 Watch Movie</button>
+        <p style="color:rgba(255,255,255,0.7); margin-top:10px;">(Includes Smart Video Playback)</p>
+    </div>
+
     <div id="map-background"></div>
 
     <div id="story-card-container">
-        <div class="glass-card animate__animated animate__fadeInUp">
+        <div class="glass-card animate__animated animate__zoomIn">
             
-            <div style="font-size: 2.5rem; margin-bottom: 5px;">🎉</div>
-            <div id="chapter-header" class="chapter-header">Trait #1</div>
+            <div class="close-btn" onclick="closeCard()">&times;</div>
+            <div id="chapter-title" class="chapter-title">Title</div>
 
-            <div class="media-container">
-                <img id="ev-img" class="evidence-img" src="" style="display:none;">
-                <video id="ev-video" class="evidence-img" src="" controls style="display:none;"></video>
+            <div class="media-box">
+                <img id="ev-img" class="evidence-media" src="" style="display:none;">
+                <video id="ev-video" class="evidence-media" src="" controls style="display:none;"></video>
             </div>
             
-            <div id="ev-text" class="memory-text"></div>
-            <span id="ev-author" class="memory-author"></span>
+            <div class="quote-box" id="ev-text"></div>
+            <span class="author-tag" id="ev-author"></span>
 
-            <div class="connector-line"></div>
+            <button id="reveal-btn" class="action-btn" onclick="revealConclusion()">🎁 Open Gift</button>
 
-            <button id="reveal-btn" class="btn-style" onclick="revealConclusion()">
-                🤔 What does this reveal?
-            </button>
-
-            <div id="conclusion-container" class="conclusion-box">
-                <div id="conc-narrative" class="narrative-text"></div>
+            <div id="conclusion-wrapper" class="conclusion-wrapper">
+                <p id="conc-narrative" style="font-weight: 600; color: #444; margin-bottom:15px; font-size:1.1rem; line-height:1.4;"></p>
                 
-                <div class="verdict-reveal">
-                    <div class="verdict-icon" id="conc-icon"></div>
-                    <div class="verdict-title" id="conc-title"></div>
+                <div style="background: white; padding: 15px; border-radius: 15px; transform: rotate(-1deg); margin-bottom: 20px; box-shadow:0 5px 15px rgba(0,0,0,0.05);">
+                    <span class="verdict-emoji" id="conc-icon"></span>
+                    <span class="verdict-label" id="conc-title"></span>
                 </div>
-                <br>
-                <button id="next-btn" class="btn-style next-btn" onclick="nextStory()">
-                    Next Trait <i class="fas fa-arrow-right"></i>
-                </button>
+
+                <button id="next-btn" class="action-btn" style="background:#6c5ce7;" onclick="nextStory()">Next Memory ➡️</button>
             </div>
 
         </div>
     </div>
 
     <script>
-        // --- THE STORYLINE: Connecting Memory to Metaphor ---
-        // css_fit: 'cover' (fills box) OR 'contain' (shows whole)
-        // css_pos: 'center', 'top', 'bottom', 'center 20%'
-        
+        // --- 1. DATASET ---
         const storyline = [
             {
-                chapter: "Trait #1: The Sole Protector",
+                chapter: "The Sole Protector",
                 location: "📍 Munich Beach",
-                mem_lat: 48.1319, mem_lng: 11.6019, 
-                mem_img: "Images/aditi.jpeg",
-                css_fit: "cover", css_pos: "center", // Aditi: Full Box
-                mem_text: "At the beach party, I arrived late and hungry. Shashwat noticed immediately, ran to get me food, and didn't leave my side until I was fed.",
-                mem_author: "Memory: Aditi",
-                
-                // The Logic connecting memory to object
+                lat: 48.1319, lng: 11.6019, 
+                img: "Images/aditi.jpeg", fit: "cover", pos: "center",
+                text: "I have so many fond memories with Shashwat, but one of my favourites stands out clearly. There was a birthday party on the beach, and I reached quite late. Everyone had brought something special, and by the time I arrived, I was extremely hungry. When Shashwat noticed me quietly looking around for food, he immediately came running and started making a plate just for me. He stayed by my side, making sure I ate properly and felt comfortable, not leaving until I was completely fed and felt good. That moment—his kindness, and thoughtfulness—truly touched my heart.",
+                author: "Aditi",
                 narrative: "He cushions the hard impact of life and supports your sole. He isn't a flashy high-heel that hurts you, he is...",
-                conc_icon: "👟", conc_title: "Comfy Sneakers"
+                icon: "👟", title: "Comfy Sneakers"
             },
             {
-                chapter: "Trait #2: The Harmonizer",
+                chapter: "The Harmonizer",
                 location: "📍 Porto, Portugal",
-                mem_lat: 41.1579, mem_lng: -8.6291,
-                mem_img: "Images/vinit.jpeg", 
-                css_fit: "contain", css_pos: "center", // Vinit: Fit to box
-                mem_text: "Even during the parking disaster in Porto when there was zero space and high stress...",
-                mem_author: "Memory: Vinit",
-                
+                lat: 41.1579, lng: -8.6291,
+                img: "Images/vinit.jpeg", fit: "contain",
+                text: "The specific memory with Shashwat is from Porto when we were parking the car and there was no space 😂",
+                author: "Vinit",
                 narrative: "When the world is screaming and chaotic, he doesn't toot his own horn. He just brings the sweet melody.",
-                conc_icon: "🪈", conc_title: "A Flute"
+                icon: "🪈", title: "A Flute"
             },
             {
-                chapter: "Trait #3: The Unpaid Intern",
+                chapter: "The Unpaid Intern",
                 location: "📍 Vienna, Austria",
-                mem_lat: 48.2082, mem_lng: 16.3738,
-                mem_img: "Images/diksha.jpeg",
-                mem_text: "When I was too drunk to remember anything, he made sure I got home safe. He has always been a blessing.",
-                mem_author: "Memory: Diksha",
-                css_fit: "cover", css_pos: "center 20%", // Diksha: Cut top/bottom
-
+                lat: 48.2082, lng: 16.3738,
+                img: "Images/diksha.jpeg", fit: "cover", pos: "center 20%",
+                text: "I have memories with him in few countries by now but in Austria and Germany (munich) one are my favourite. Because in both places we have home ❤️. This photo summerises one of the day 15th sep 2023, i was so drunk to remember anything. He made sure that I reach home safe, I drink enough. Its just one of them, he has forever been like my younger brother, I know whom I can rely on. Be it my wedding, my birthday, with taking care of my sister, with introducing me best people. He has been a blessing to me ❤️",
+                author: "Diksha",
                 narrative: "He works tirelessly for the betterment of society (us) without getting paid. If he wasn't an engineer, he'd be broke but happy as a...",
-                conc_icon: "🤝", conc_title: "Social Worker"
+                icon: "🤝", title: "Social Worker"
             },
             {
-                chapter: "Trait #4: The Texture Paradox",
+                chapter: "The Texture Paradox",
                 location: "📍 Innsbruck, Austria",
-                mem_lat: 47.2692, mem_lng: 11.4041,
-                mem_img: "Images/meghna.jpeg",
-                mem_text: "Innsbruck, where it was a double date—only Shashwat didn't know it yet!",
-                mem_author: "Memory: Meghna",
-                css_fit: "cover", css_pos: "center 70%", // Meghna: Focus lower
-
+                lat: 47.2692, lng: 11.4041,
+                img: "Images/meghna.jpeg", fit: "cover", pos: "center 70%",
+                text: "Innsbruck where it was a double date (me, Krishnan, you & Shashwat), only that you & Shashwat didn't know it yet❤️",
+                author: "Meghna",
                 narrative: "He is a man of contradictions. In texts? He ghosts you (Tissue Paper - flaky). In person? He keeps you warm (Decathlon Fleece - quality).",
-                conc_icon: "🧥", conc_title: "Fleece & Tissue"
+                icon: "🧥", title: "Fleece & Tissue"
             },
             {
-                chapter: "Trait #5: The Ink Flow",
+                chapter: "The Ink Flow",
                 location: "📍 Reykjavik, Iceland",
-                mem_lat: 64.1466, mem_lng: -21.9426,
-                mem_img: "Images/srajit.jpeg",
-                mem_text: "Making memories from Iceland to Portugal.",
-                mem_author: "Memory: Srajit",
-                css_fit: "cover", css_pos: "top center", // Srajit: Big
-
+                lat: 64.1466, lng: -21.9426,
+                img: "Images/srajit.jpeg", fit: "cover", pos: "top center",
+                text: "Making memories from Iceland to Portugal.",
+                author: "Srajit",
                 narrative: "He flows smoothly, he never leaks secrets, and he leaves a permanent mark wherever he goes.",
-                conc_icon: "🖊️", conc_title: "Gel Pen"
+                icon: "🖊️", title: "Gel Pen"
             },
             {
-                chapter: "Trait #6: The Ladies' Man",
-                location: "📍 IIT Patna, India",
-                mem_lat: 25.5358, mem_lng: 84.8511,
-                mem_img: "Images/shreya.jpeg",
-                mem_text: "Our group spent days and nights using the office space for parties and sleepovers, courtesy of him.",
-                mem_author: "Memory: Shreya",
-                css_fit: "cover", css_pos: "top center", // Shreya: Cut bottom
-
+                chapter: "The Ladies' Man",
+                location: "📍 IIT Patna",
+                lat: 25.5358, lng: 84.8511,
+                img: "Images/shreya.jpeg", fit: "cover", pos: "top center",
+                text: "Our group spent days and night using this office space in the admin building, treating this as our party place, playing cards and ordering shakes and burgers from Batido, watching movies and having sleepovers. Courtesy of our TPC officer Shashwat Mahajan😂",
+                author: "Shreya",
                 narrative: "High prestige. High demand. And somehow, always surrounded by ladies. He is basically...",
-                conc_icon: "🎓", conc_title: "Delhi University"
+                icon: "🎓", title: "Delhi University"
             },
             {
-                chapter: "Trait #7: The Clarity",
+                chapter: "The Clarity",
                 location: "📍 London, UK",
-                mem_lat: 51.5074, mem_lng: -0.1278,
-                mem_img: "Images/disha.jpeg",
-                mem_text: "Instead of being younger, he felt like an older brother who cares for me a lot.",
-                mem_author: "Memory: Disha",
-                css_fit: "cover", css_pos: "top center", // Disha: Cut bottom
-
+                lat: 51.5074, lng: -0.1278,
+                img: "Images/disha.jpeg", fit: "cover", pos: "top center",
+                text: "Instead of being younger, he felt like an older brother who cares for me a lot.",
+                author: "Disha",
                 narrative: "When there is drama or dirt on the windshield of life, one spray of Shashwat wipes it all away. No streaks left behind.",
-                conc_icon: "🧼", conc_title: "Glass Cleaner"
+                icon: "🧼", title: "Glass Cleaner"
             },
             {
-                chapter: "Trait #8: The Reliable Ride",
+                chapter: "The Reliable Ride",
                 location: "📍 Santa Cruz, USA",
-                mem_lat: 36.9741, mem_lng: -122.0308,
-                mem_img: "Images/yun.jpeg",
-                mem_text: "I love our Santa Cruz bonfire! Such a good memory.",
-                mem_author: "Memory: Yun",
-                css_fit: "cover", css_pos: "top center", // Yun: Cut bottom
-
+                lat: 36.9741, lng: -122.0308,
+                img: "Images/yun.jpeg", fit: "cover", pos: "top center",
+                text: "I love our Santa Cruz bonfire! Such a good memory.",
+                author: "Yun",
                 narrative: "High mileage friendship. Low maintenance. And an engine that never quits (just don't ask him to speed).",
-                conc_icon: "🚗", conc_title: "A Toyota"
+                icon: "🚗", title: "A Toyota"
             },
             {
-                chapter: "Trait #9: The Ghost",
-                location: "📍 Khada Danda Road",
-                mem_lat: 25.6155, mem_lng: 85.1355,
-                mem_img: "Images/hrisabh.jpeg", 
-                mem_video: "Images/hrisabh.mp4",
-                css_fit: "contain", css_pos: "center", // Video/Thumbnail: Keep full
-                mem_text: "We have great memories on Khada Danda road, but trying to reach him afterwards is another story...",
-                mem_author: "Memory: Hrishab",
-                
+                chapter: "The Ghost",
+                location: "📍 Khada Danda",
+                lat: 25.6155, lng: 85.1355,
+                img: "Images/hrisabh.jpeg", video: "Images/hrisabh.mp4",
+                text: "We have great memories on Khada Danda road, but trying to reach him afterwards is another story...",
+                author: "Hrishab",
                 narrative: "You speak to him, but he doesn't speak back until 3 months later. He effectively functions as a vintage...",
-                conc_icon: "📱", conc_title: "Voicemail"
+                icon: "📱", title: "Voicemail"
             },
             {
-                chapter: "Trait #10: The Spotlight",
+                chapter: "The Spotlight",
                 location: "📍 Kerala, India",
-                mem_lat: 9.9312, mem_lng: 76.2673,
-                mem_img: "Images/saurabh.jpeg",
-                mem_text: "Using a 'Nada' to tie his shorts... he unintentionally becomes the highlight of the trip.",
-                mem_author: "Memory: Saurabh",
-                css_fit: "contain", css_pos: "center", 
-
-                narrative: "A normal sunflower looks for the light. Shashwat stands still wearing a Nada, and the spotlight finds HIM.",
-                conc_icon: "🌻", conc_title: "Reverse Sunflower"
+                lat: 9.9312, lng: 76.2673,
+                img: "Images/saurabh.jpeg", fit: "contain",
+                text: "Using a 'Nada' to tie his shorts... he unintentionally becomes the highlight of the trip.",
+                author: "Saurabh",
+                narrative: "Unlike sunflower that follows light, its him that light follows.",
+                icon: "🌻", title: "Reverse Sunflower"
             },
             {
-                chapter: "Trait #11: The Softie",
+                chapter: "The Softie",
                 location: "📍 Hallstatt, Austria",
-                mem_lat: 47.5622, mem_lng: 13.6493,
-                mem_img: "Images/Ann.jpeg",
-                mem_text: "Thanks for organising such a nice trip. It was smooth sailing.",
-                mem_author: "Memory: Ann",
-                css_fit: "contain", css_pos: "center",
-
+                lat: 47.5622, lng: 13.6493,
+                img: "Images/Ann.jpeg", fit: "contain",
+                text: "Thanks for organising such a nice trip. It was smooth sailing.",
+                author: "Ann",
                 narrative: "He has no crunch, no hard shell, and no nuts (metaphorically). Just pure, soft sweetness.",
-                conc_icon: "🍫", conc_title: "Milkyway Bar"
+                icon: "🍫", title: "Milkyway Bar"
             },
             {
-                chapter: "Trait #12: The Natural",
+                chapter: "The Natural",
                 location: "📍 Munich, Germany",
-                mem_lat: 48.1495, mem_lng: 11.5780,
-                mem_img: "Images/nikita.jpeg",
-                mem_text: "Munich: His house, his cooking, my appetite.",
-                mem_author: "Memory: Nikita",
-                css_fit: "contain", css_pos: "center",
-
+                lat: 48.1495, lng: 11.5780,
+                img: "Images/nikita.jpeg", fit: "contain",
+                text: "Munich: His house, his cooking, my appetite.",
+                author: "Nikita",
                 narrative: "He isn't neon or flashing lights. He is the color of grounding, cooking, and nature.",
-                conc_icon: "🌲", conc_title: "Forest Green"
+                icon: "🌲", title: "Forest Green"
             },
             {
-                chapter: "Trait #13: The Protagonist",
-                location: "📍 Marienplatz, Munich",
-                mem_lat: 48.1374, mem_lng: 11.5755,
-                mem_img: "Images/krishnan.jpeg",
-                mem_text: "Trespassing into a closed restaurant just to play in the kids' area.",
-                mem_author: "Memory: Krishnan",
-                css_fit: "contain", css_pos: "center",
-
+                chapter: "The Protagonist",
+                location: "📍 Marienplatz",
+                lat: 48.1374, lng: 11.5755,
+                img: "Images/krishnan.jpeg", fit: "contain",
+                text: "Trespassing into a closed restaurant just to play in the kids' area.",
+                author: "Krishnan",
                 narrative: "He doesn't need to act. One day, Hollywood will make a biopic about how nice (and crazy) he is.",
-                conc_icon: "🎬", conc_title: "Movie Character"
+                icon: "🎬", title: "Movie Character"
             },
             {
-                chapter: "Trait #14: The Electric Hug",
-                location: "📍 Strasbourg, France",
-                mem_lat: 48.5734, mem_lng: 7.7521,
-                mem_img: "Images/nancy.jpeg",
-                mem_text: "Strassburg and the starry nights with you.",
-                mem_author: "Memory: Nancy",
-                css_fit: "contain", css_pos: "center",
-
+                chapter: "The Electric Hug",
+                location: "📍 Strasbourg",
+                lat: 48.5734, lng: 7.7521,
+                img: "Images/nancy.jpeg", fit: "contain",
+                text: "Strassburg and the starry nights with you.",
+                author: "Nancy",
                 narrative: "He is shocking...ly cute. No batteries required for his warmth.",
-                conc_icon: "🐼", conc_title: "No-Battery Panda"
+                icon: "🐼", title: "No-Battery Panda"
             },
             {
-                chapter: "Trait #15: The Breeze",
+                chapter: "The Breeze",
                 location: "📍 Munich Gym",
-                mem_lat: 48.1439, mem_lng: 11.5475,
-                mem_img: "Images/kara.jpeg",
-                mem_text: "In the fitness studio when we learnt dancing.",
-                mem_author: "Memory: Kara",
-                css_fit: "contain", css_pos: "center",
-
+                lat: 48.1439, lng: 11.5475,
+                img: "Images/kara.jpeg", fit: "contain",
+                text: "In the fitness studio when we learnt dancing.",
+                author: "Kara",
                 narrative: "You can't catch him, you can't hold him, but when he passes by, everything feels pleasant.",
-                conc_icon: "🍃", conc_title: "September Wind"
+                icon: "🍃", title: "September Wind"
             },
             {
-                chapter: "Trait #16: The Foundation",
-                location: "📍 Munich, Germany",
-                mem_lat: 48.1492, mem_lng: 11.5774,
-                mem_img: "Images/shivani.jpeg",
-                mem_text: "He always made sure I never felt out of place whenever he was around.",
-                mem_author: "Memory: Shivani",
-                css_fit: "contain", css_pos: "center",
-
+                chapter: "The Foundation",
+                location: "📍 Munich Home",
+                lat: 48.1492, lng: 11.5774,
+                img: "Images/shivani.jpeg", fit: "contain",
+                text: "Best memory I can’t really define we always had a good time but what I really adore about him is: He’s one of the kindest person I know and most accommodating one. He always made sure I never felt out of place whenever he was around",
+                author: "Shivani",
                 narrative: "He isn't a flashy skyscraper. He is the concrete foundation that makes everyone else feel safe.",
-                conc_icon: "❤️", conc_title: "Home Base"
+                icon: "❤️", title: "Home Base"
+            },
+            {
+                chapter: "The Survivor",
+                location: "📍 Mittenwald",
+                lat: 47.4430, lng: 11.2655,
+                img: "Images/shejal.jpeg", fit: "contain",
+                text: "What an amazing hike or should I say, a cooking trip in the mountains on a work day! We carried laptops to work and our chatori asses carried rajma chawal, gas stove(yes we did!), maggi, and sandwiches… and guess what? Not a single laptop was used. The gas stove didn’t work. So we lit a fire in the forest with grass and sticks, and I had the best warmest rajma of my life in the mountains. Shashwat you turned a boring workday into an unforgettable lit memory. Happiest birthday boi! Keep spreading your warmth.",
+                author: "Shejal",
+                narrative: "Deutsche bahn - always late but runs fast xD",
+                icon: "🚆", title: "Public Transport"
+            },
+            {
+                chapter: "The Family",
+                location: "📍 Nederlinger str",
+                lat: 48.1650, lng: 11.5300,
+                img: "Images/Akash.jpeg", fit: "contain",
+                text: "I had just come to Munich and I found this lovely group of friends I called home. This picture is a testament to this emotion. At the same time its a bitter sweet emotion, as we do not / cannot have this again. In Shashwat, I found a friend who is always there for you when you need him (no questions asked, seriously!). Wish you a very happy birthday Shashwat!",
+                author: "Akash",
+                narrative: "Refreshing and sweet.",
+                icon: "🍋", title: "Lemonade"
+            },
+            {
+                chapter: "The Spark",
+                location: "📍 IIT Patna Fest",
+                lat: 25.5350, lng: 84.8520,
+                img: "Images/Aryan.jpeg", fit: "contain",
+                text: "This is from our first reverb ( college diwali fest )",
+                author: "Aryan",
+                narrative: "He lights up the night.",
+                icon: "🎆", title: "Firecracker"
+            },
+            {
+                chapter: "The Coder",
+                location: "📍 IIT Roorkee",
+                lat: 29.8649, lng: 77.8966,
+                img: "Images/Joshika.jpeg", fit: "contain",
+                text: "This Roorkee inter-IIT trip photo brings back so many memories of laughs, sleepless 24 hrs of CTF with us desperately trying to solve 2 problems😂, and good times that still make me smile. So grateful for you and for everything we've shared. Happy Birthday ❤️",
+                author: "Joshika",
+                narrative: "Logic, determination, and late nights.",
+                icon: "💻", title: "Debugged Code"
+            },
+            {
+                chapter: "The Cool",
+                location: "📍 IIT P Jungle",
+                lat: 25.5320, lng: 84.8480,
+                img: "Images/bhumika2.jpeg", fit: "contain",
+                text: "IIT Patna restricted jungle area",
+                author: "Bhumika",
+                narrative: "If Shashwat were a state of water, he would be 'baraf wali icecream'",
+                icon: "🍧", title: "Ice Cream"
+            },
+            {
+                chapter: "The Director",
+                location: "📍 IIT Patna",
+                lat: 25.5340, lng: 84.8500,
+                img: "Images/Balbeer.jpeg", fit: "contain",
+                text: "some memory?",
+                author: "Balbeer",
+                narrative: "If he was a celebrity, he will definitely be Karan Johar",
+                icon: "🎥", title: "Karan Johar"
+            },
+            {
+                chapter: "The Agent",
+                location: "📍 London Eye",
+                lat: 51.5033, lng: -0.1195,
+                img: "Images/AkhileshLihe.mp4",
+                text: "Birthday wishes",
+                author: "Akhilesh & Lihe",
+                narrative: "Supportive agent listen first and response after",
+                icon: "🤖", title: "AI Agent"
+            },
+            {
+                chapter: "The Style",
+                location: "📍 Marienplatz",
+                lat: 48.1380, lng: 11.5760,
+                img: "Images/Alex.jpeg", fit: "contain",
+                text: "Food memories",
+                author: "Alexandra",
+                narrative: "Ankle lenth shoes",
+                icon: "👟", title: "Trendy Shoe"
+            },
+            {
+                chapter: "The Strength",
+                location: "📍 Switzerland",
+                lat: 46.8182, lng: 8.2275,
+                img: "Images/Dikshant.jpeg", fit: "contain",
+                text: "At top of the hill?",
+                author: "Dikshant",
+                narrative: "pull up assistance band",
+                icon: "💪", title: "Gym Equipment"
             }
         ];
 
-        // --- 2. MAP SETUP ---
+        // --- 2. MAP & MARKERS ---
         var map = L.map('map-background', {
-            zoomControl: false, scrollWheelZoom: false, dragging: false
-        }).setView([20,0], 2);
+            zoomControl: false, scrollWheelZoom: true, dragging: true
+        }).setView([30, 10], 3);
 
-        // Fun Pastel Tiles
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '', maxZoom: 19
         }).addTo(map);
 
-        let currentMarker = null;
+        let currentActiveIndex = 0;
+        let isAutoplay = false;
+        let mapMarkers = []; 
 
-        // --- 3. STORY ENGINE ---
-        let currentIndex = 0;
-
-        function loadStory(index) {
-            const data = storyline[index];
-            
-            document.getElementById('chapter-header').innerText = data.chapter;
-            
-            const imgEl = document.getElementById('ev-img');
-            const vidEl = document.getElementById('ev-video');
-            
-            // Apply SMART CROP Styles
-            const fitStyle = data.css_fit || 'contain';
-            const posStyle = data.css_pos || 'center';
-            imgEl.style.objectFit = fitStyle;
-            imgEl.style.objectPosition = posStyle;
-
-            if (data.mem_video) {
-                imgEl.style.display = 'none';
-                vidEl.style.display = 'block';
-                vidEl.src = data.mem_video;
-            } else {
-                vidEl.style.display = 'none';
-                imgEl.style.display = 'block';
-                imgEl.src = data.mem_img;
-            }
-
-            document.getElementById('ev-text').innerText = `"${data.mem_text}"`;
-            document.getElementById('ev-author').innerText = data.mem_author;
-
-            document.getElementById('conc-narrative').innerText = data.narrative;
-            document.getElementById('conc-icon').innerText = data.conc_icon;
-            document.getElementById('conc-title').innerText = data.conc_title;
-
-            document.getElementById('reveal-btn').style.display = 'block';
-            document.getElementById('conclusion-container').style.display = 'none';
-            document.getElementById('next-btn').style.display = 'none';
-            document.getElementById('conclusion-container').classList.remove('animate__backInUp');
-
-            // Scroll Top
-            document.querySelector('.glass-card').scrollTop = 0;
-
-            // Fly to location
-            if(currentMarker) map.removeLayer(currentMarker);
-            
-            // Smart Padding to keep pin visible above card
-            map.flyTo([data.mem_lat, data.mem_lng], 13, {
-                animate: true, 
-                duration: 2.5,
-                paddingBottomLeft: [0, 450] // Push center UP
+        storyline.forEach((data, index) => {
+            const smallIcon = L.divIcon({
+                className: 'custom-pin',
+                html: `🎁`,
+                iconSize: [35, 35],
+                iconAnchor: [17, 17]
             });
 
-            setTimeout(() => {
-                let pulseIcon = L.divIcon({ className: 'pulse-icon', iconSize: [20,20] });
-                currentMarker = L.marker([data.mem_lat, data.mem_lng], {icon: pulseIcon}).addTo(map);
-                
-                currentMarker.bindTooltip(data.location, {
-                    permanent: true, direction: 'top', className: 'location-tooltip'
-                }).openTooltip();
+            const marker = L.marker([data.lat, data.lng], {icon: smallIcon}).addTo(map);
+            
+            marker.bindTooltip(data.location, { 
+                direction: 'top', 
+                offset: [0, -10],
+                className: 'location-label',
+                permanent: false 
+            });
 
-            }, 2500);
+            marker.on('click', () => {
+                if(!isAutoplay) {
+                    currentActiveIndex = index;
+                    openStory(index);
+                }
+            });
+            
+            mapMarkers.push(marker);
+        });
+
+        // --- 3. MODES & CONTROLS ---
+        
+        function startManual() {
+            document.getElementById('start-overlay').style.display = 'none';
+            isAutoplay = false;
+        }
+
+        function startAutoplay() {
+            document.getElementById('start-overlay').style.display = 'none';
+            isAutoplay = true;
+            document.getElementById('reveal-btn').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.querySelector('.close-btn').style.display = 'none';
+            runAutoplaySequence(0);
+        }
+
+        // --- 4. CINEMATIC AUTOPLAY SEQUENCE ---
+        function runAutoplaySequence(index) {
+            if(index >= storyline.length) {
+                setTimeout(() => runAutoplaySequence(0), 5000); 
+                return;
+            }
+
+            // Step 1: Fly to Location
+            openStory(index);
+
+            // Step 2: Wait 3.5s (Travel time) -> Show Card
+            setTimeout(() => {
+                const cardContainer = document.getElementById('story-card-container');
+                const card = document.querySelector('.glass-card');
+                const vid = document.getElementById('ev-video');
+
+                cardContainer.style.display = 'block';
+                card.scrollTop = 0;
+
+                // Check if current story is a VIDEO
+                const currentStory = storyline[index];
+                const isVideo = currentStory.video || (currentStory.img && currentStory.img.endsWith('.mp4'));
+
+                if(isVideo) {
+                    // Play Video and wait for 'ended' event
+                    vid.currentTime = 0;
+                    vid.play();
+                    
+                    // Fallback in case video doesn't play or is 0s
+                    let hasEnded = false;
+                    vid.onended = () => {
+                        if(!hasEnded) {
+                            hasEnded = true;
+                            performScrollAndReveal();
+                        }
+                    };
+                } else {
+                    // Image: Wait standard 3s
+                    setTimeout(() => {
+                        performScrollAndReveal();
+                    }, 3000);
+                }
+
+                function performScrollAndReveal() {
+                    // Step 3: Scroll to Text
+                    card.scrollTo({ top: 350, behavior: 'smooth' });
+
+                    // Step 4: Wait 5s for reading -> Reveal Gift
+                    setTimeout(() => {
+                        revealConclusion();
+
+                        // Step 5: Wait 5s for digesting -> Next
+                        setTimeout(() => {
+                            cardContainer.style.display = 'none';
+                            mapMarkers[index].closeTooltip();
+                            runAutoplaySequence(index + 1);
+                        }, 5000);
+
+                    }, 5000); 
+                }
+
+            }, 3500); 
+        }
+
+        // --- 5. CORE FUNCTIONS ---
+
+        function openStory(index) {
+            const data = storyline[index];
+            currentActiveIndex = index;
+            document.getElementById('story-card-container').style.display = 'none';
+            map.flyTo([data.lat, data.lng], 10, { duration: 2.0 });
+
+            mapMarkers.forEach(m => m.closeTooltip());
+            setTimeout(() => {
+                mapMarkers[index].openTooltip();
+            }, 1000);
+
+            const revealBtn = document.getElementById('reveal-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            if(!isAutoplay) {
+                revealBtn.style.display = 'block';
+                nextBtn.style.display = 'block';
+            } else {
+                revealBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            }
+            
+            document.getElementById('conclusion-wrapper').style.display = 'none';
+            document.getElementById('chapter-title').innerText = data.chapter;
+            document.getElementById('ev-text').innerText = `"${data.text}"`;
+            document.getElementById('ev-author').innerText = `— ${data.author}`;
+            
+            const img = document.getElementById('ev-img');
+            const vid = document.getElementById('ev-video');
+            img.style.objectFit = data.fit || 'contain';
+            img.style.objectPosition = data.pos || 'center';
+
+            if(data.video || (data.img && data.img.endsWith('.mp4'))) {
+                img.style.display = 'none'; vid.style.display = 'block';
+                vid.src = data.video || data.img;
+            } else {
+                vid.style.display = 'none'; img.style.display = 'block';
+                img.src = data.img;
+            }
+
+            document.getElementById('conc-narrative').innerText = data.narrative;
+            document.getElementById('conc-icon').innerText = data.icon;
+            document.getElementById('conc-title').innerText = data.title;
+
+            if(!isAutoplay) {
+                setTimeout(() => {
+                    document.getElementById('story-card-container').style.display = 'block';
+                    document.querySelector('.glass-card').scrollTop = 0;
+                }, 3000); 
+            }
         }
 
         function revealConclusion() {
-            document.getElementById('reveal-btn').style.display = 'none';
-            const concBox = document.getElementById('conclusion-container');
-            concBox.style.display = 'block';
-            concBox.classList.add('animate__backInUp');
-            document.getElementById('next-btn').style.display = 'inline-block';
+            if(!isAutoplay) document.getElementById('reveal-btn').style.display = 'none';
+            const wrapper = document.getElementById('conclusion-wrapper');
+            wrapper.style.display = 'block';
             
-            // Auto Scroll
             setTimeout(() => {
-                const card = document.querySelector('.glass-card');
-                card.scrollTo({ top: card.scrollHeight, behavior: 'smooth' });
+                 document.querySelector('.glass-card').scrollTo({ 
+                     top: document.querySelector('.glass-card').scrollHeight, 
+                     behavior: 'smooth' 
+                 });
             }, 100);
+
+            var duration = 2 * 1000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#6c5ce7', '#fab1a0', '#ffeaa7'] });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#6c5ce7', '#fab1a0', '#ffeaa7'] });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
         }
 
         function nextStory() {
-            currentIndex++;
-            if(currentIndex < storyline.length) {
-                loadStory(currentIndex);
-            } else {
-                alert("That's the end of the story! Happy Birthday Shashwat! 🎂");
-                currentIndex = 0;
-                loadStory(0);
+            mapMarkers[currentActiveIndex].closeTooltip();
+            let nextIndex = currentActiveIndex + 1;
+            if(nextIndex >= storyline.length) {
+                alert("You've reached the end! 🎂");
+                nextIndex = 0;
             }
+            openStory(nextIndex);
         }
 
-        // Initialize
-        loadStory(0);
+        function closeCard() {
+            document.getElementById('story-card-container').style.display = 'none';
+            mapMarkers[currentActiveIndex].closeTooltip();
+        }
 
     </script>
 </body>
